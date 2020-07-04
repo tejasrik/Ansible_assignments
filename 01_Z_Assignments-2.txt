@@ -1,0 +1,71 @@
+Learning Objectives:-
+Install Ansible on the control node.
+Configure the `ansible` user on the control node for ssh shared key access to managed nodes. Do not use a passphrase for the key pair.
+Create a simple Ansible inventory on the control node in `/home/ansible/inventory` containing `node1` and `node2`.
+Configure sudo access for Ansible on `node1` and `node2` such that Ansible may use sudo for any command with no password prompt.
+Verify each managed node is able to be accessed by Ansible from the control node using the `ping` module. Redirect the output of a successful command to `/home/ansible/output`.
+
+
+Additional Information:-
+Your CIO has greenlit a proof of concept for Ansible in your environment. You are to set up an Ansible control node in a test environment and verify basic functionality. You have three demo hosts, one to be the control node (control1), and two to serve as managed nodes (node1 and node2). You must complete the following steps:
+
+1. Install Ansible on the control node.
+2. Configure the ansible user on the control node for ssh shared key access to managed nodes.
+	Note: do not use a passphrase for the key pair.
+3. Create a simple Ansible inventory on the control node in /home/ansible/inventory containing node1 and node2.
+4. Configure sudo access for Ansible on node1 and node2 so that Ansible may use sudo for any command with no password prompt.
+5. Verify each managed node can be accessed by Ansible from the control node using the ping module. Redirect the output of a successful command to /home/ansible/output.
+
+Important Notes:
+You might have to create user "ansible" on all servers.
+The ansible user has the same password as the cloud_user.
+/etc/hosts entries must be present on control1 for the managed nodes.
+***********************************************************************8
+update and upgrade
+$sudo apt-get update
+$sudo apt-get upgrade -y
+Log into the Ubuntu Server which hosts Ansible
+Install the necessary repository
+$sudo apt-add-repository ppa:ansible/ansible.
+Update apt with the command 
+$sudo apt-get update.
+Install Ansible with the command
+$ sudo apt-get install ansible -y.
+$sudo apt-get install python -y
+
+ubuntu@ip-172-31-34-19:~$ cd .ssh  
+ubuntu@ip-172-31-34-19:~/.ssh$ ssh-keygen 
+
+ubuntu@ip-172-31-34-19:~/.ssh$ ls       
+authorized_keys  id_rsa  id_rsa.pub  known_hosts
+
+ubuntu@ip-172-31-34-19:~/.ssh$ cat id_rsa.pub  
+ node-
+[centos@ip-10-0-0-136 ~]$ cd .ssh
+[centos@ip-10-0-0-136 .ssh]$ ls
+authorized_keys  known_hosts
+ Create a simple Ansible inventory on the control node in /home/ansible/inventory containing node1 and node2.
+sudo vim /etc/ansible/hosts
+[server]
+18.222.100.58 
+[nodes]
+18.222.249.25 ansible_user=centos
+Configure sudo access for Ansible on node1 and node2 so that Ansible may use sudo for any command with no password prompt.
+create usernames and password for the manage nodes and control nodes and add them to visudo 
+useradd ansible
+passwd ansible
+echo "ansible ALL=(ALL) ALL" >> /etc/sudoers    #sudo visudo ->ansible ALL=(ALL) ALL
+Verify each managed node is able to be accessed by Ansible from the control node using the `ping` module. Redirect the output of a successful command to `/home/ansible/output`.
+
+Use ping module
+
+ubuntu@ip-172-31-34-19:/$ ansible -m ping all
+The authenticity of host '18.188.116.42 (18.188.116.42)' can't be established.
+ECDSA key fingerprint is SHA256:oN5o77MCvBAf6V737fJqlQ+/n7oap6H8h7Wzz1Kmg+g.
+Are you sure you want to continue connecting (yes/no)? 52.14.144.107 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
