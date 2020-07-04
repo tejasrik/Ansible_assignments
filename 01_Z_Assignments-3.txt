@@ -68,7 +68,7 @@ vi create-users.yml
 
 
 
- ansible-playbook create-users.yml
+ubuntu@ip-172-31-34-19:~$ ansible-playbook create-users.yml
 
 PLAY [host1] *******************************************************************************************************************************
 
