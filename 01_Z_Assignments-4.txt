@@ -39,8 +39,7 @@ vi web.yml
 		dest: /var/www/html
 		
 
-
-ubuntu@ip-172-31-29-245:$ ansible-playbook web.yml
+ubuntu@ip-172-31-34-19:~$ ansible-playbook web.yml
 
 PLAY [host1] *******************************************************************************************************************************
 
