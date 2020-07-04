@@ -24,11 +24,6 @@ Create an `ansible` user on both the control host and workstation host being sur
 sudo useradd ansible
 sudo password ansible
 
-add user to sudoers file and edit below
-sudo visudo
-ansible ALL  ALL
-ubuntu ALL  ALL
-
 Configure a pre-shared key for Ansible that allows the user to log in from `control` to `workstation` without a password.
 Create a file(ansible.pem) in /home/ubuntu
 sudo vim ansible.pem
@@ -73,13 +68,12 @@ vim git-setup.yml
     tags: install
 
 
-root@ip-172-31-34-19:/home/ubuntu# ansible-playbook git-setup.yml -vv
 ansible-playbook 2.9.9
   config file = /etc/ansible/ansible.cfg
   configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
   ansible python module location = /usr/lib/python2.7/dist-packages/ansible
   executable location = /usr/bin/ansible-playbook
-  python version = 2.7.17 (default, Jun 30 2020, 17:20:14) [GCC 7.5.0]
+  python version = 2.7.17 (default, Apr 15 2020, 17:20:14) [GCC 7.5.0]
 Using /etc/ansible/ansible.cfg as config file
 
 PLAYBOOK: git-setup.yml ****************************************************************************************************************************************************
