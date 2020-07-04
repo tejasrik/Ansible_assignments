@@ -1,0 +1,111 @@
+Learning Objectives:-
+Install Ansible on the control host.
+Create an `ansible` user on both the control host and workstation host being sure to set a password you can remember.
+Configure a pre-shared key for Ansible that allows the user to log in from `control` to `workstation` without a password.
+Configure the Ansible user on the workstation host so that Ansible may sudo without a password.
+Create a simple inventory in `/home/ansible/inventory` consisting of only the `workstation` host.
+Write an Ansible playbook in `/home/ansible/git-setup.yml` on the control node that installs `git` on `workstation` then execute the playbook.
+**************************************************************************************8
+
+update and upgrade, log into the server to host Ansible
+$sudo apt-get update
+$sudo apt-get upgrade -y
+Log into the Ubuntu Serve which hosts Ansible
+$sudo apt-add-repository ppa:ansible/ansible.
+Update apt
+$sudo apt-get update.
+Install Ansible
+$ sudo apt-get install ansible -y.
+and python with
+$sudo apt-get install python -y
+
+
+Create an `ansible` user on both the control host and workstation host being sure to set a password you can remember.
+sudo useradd ansible
+sudo password ansible
+
+add user to sudoers file and edit below
+sudo visudo
+ansible ALL  ALL
+ubuntu ALL  ALL
+
+Configure a pre-shared key for Ansible that allows the user to log in from `control` to `workstation` without a password.
+Create a file(ansible.pem) in /home/ubuntu
+sudo vim ansible.pem
+
+sudo vim /etc/ansible/ansible.cfg
+and uncomment the sudo with root user
+
+Create a simple inventory in `/home/ansible/inventory` consisting of only the `workstation` host.
+sudo vim /etc/ansible/hosts
+[server]
+18.222.100.58 
+[nodes]
+18.222.249.25 ansible_user=centos ansible_ssh_private_key_file=/home/ubuntu/ansible.pem ansible_connection=ssh
+
+Configure the Ansible user on the workstation host so that Ansible may sudo without a password.
+ubuntu@ip-172-31-34-19:~$ sudo su
+root@ip-172-31-34-19:/home/ubuntu# ansible 18.222.249.25 -m ping
+The authenticity of host '18.222.249.25 (18.222.249.25)' can't be established.
+ECDSA key fingerprint is SHA256:WZ+w4SEjsyq/ULOPtE4TXo/DPEUQxxUm0Fs6SWm1LhQ.
+Are you sure you want to continue connecting (yes/no)? yes
+18.222.249.25 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+playbook in `/home/ansible/git-setup.yml` on the control node that installs `git` on `workstation`
+
+vim git-setup.yml
+
+---
+- hosts: nodes
+  become: yes
+  gather_facts: False
+  tasks:
+  - name: Ensure latest git is installed
+    yum:
+     name: git
+     state: latest
+    tags: install
+
+
+root@ip-172-31-34-19:/home/ubuntu# ansible-playbook git-setup.yml -vv
+ansible-playbook 2.9.9
+  config file = /etc/ansible/ansible.cfg
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/dist-packages/ansible
+  executable location = /usr/bin/ansible-playbook
+  python version = 2.7.17 (default, Jun 30 2020, 17:20:14) [GCC 7.5.0]
+Using /etc/ansible/ansible.cfg as config file
+
+PLAYBOOK: git-setup.yml ****************************************************************************************************************************************************
+1 plays in git-setup.yml
+
+PLAY [nodes] ***************************************************************************************************************************************************************
+META: ran handlers
+
+TASK [Ensure latest git is installed] **************************************************************************************************************************************
+task path: /home/ubuntu/git-setup.yml:6
+changed: [18.222.249.25] => {"ansible_facts": {"discovered_interpreter_python": "/usr/bin/python"}, "changed": true, "changes": {"installed": ["git"]}, "msg": "", "rc": 0, "results": ["Loaded plugins: fastestmirror\nLoading mirror speeds from cached hostfile\n * base: d36uatko69830t.cloudfront.net\n * extras: d36uatko69830t.cloudfront.net\n * updates: d36uatko69830t.cloudfront.net\nResolving Dependencies\n--> Running transaction check\n---> Package git.x86_64 0:1.8.3.1-22.el7_8 will be installed\n--> Processing Dependency: perl-Git = 1.8.3.1-22.el7_8 for package: git-1.8.3.1-22.el7_8.x86_64\n--> Processing Dependency: perl(Term::ReadKey) for package: git-1.8.3.1-22.el7_8.x86_64\n--> Processing Dependency: perl(Git) for package: git-1.8.3.1-22.el7_8.x86_64\n--> Processing Dependency: perl(Error) for package: git-1.8.3.1-22.el7_8.x86_64\n--> Running transaction check\n---> Package perl-Error.noarch 1:0.17020-2.el7 will be installed\n---> Package perl-Git.noarch 0:1.8.3.1-22.el7_8 will be installed\n---> Package perl-TermReadKey.x86_64 0:2.30-20.el7 will be installed\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package                Arch         Version                Repository     Size\n================================================================================\nInstalling:\n git                    x86_64       1.8.3.1-22.el7_8       updates       4.4 M\nInstalling for dependencies:\n perl-Error             noarch       1:0.17020-2.el7        base           32 k\n perl-Git               noarch       1.8.3.1-22.el7_8       updates        56 k\n perl-TermReadKey       x86_64       2.30-20.el7            base           31 k\n\nTransaction Summary\n================================================================================\nInstall  1 Package (+3 Dependent packages)\n\nTotal download size: 4.5 M\nInstalled size: 22 M\nDownloading packages:\n--------------------------------------------------------------------------------\nTotal                                              6.2 MB/s | 4.5 MB  00:00     \nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Installing : 1:perl-Error-0.17020-2.el7.noarch                            1/4 \n  Installing : perl-TermReadKey-2.30-20.el7.x86_64                          2/4 \n  Installing : git-1.8.3.1-22.el7_8.x86_64                                  3/4 \n  Installing : perl-Git-1.8.3.1-22.el7_8.noarch                             4/4 \n  Verifying  : perl-Git-1.8.3.1-22.el7_8.noarch                             1/4 \n  Verifying  : 1:perl-Error-0.17020-2.el7.noarch                            2/4 \n  Verifying  : git-1.8.3.1-22.el7_8.x86_64                                  3/4 \n  Verifying  : perl-TermReadKey-2.30-20.el7.x86_64                          4/4 \n\nInstalled:\n  git.x86_64 0:1.8.3.1-22.el7_8                                                 \n\nDependency Installed:\n  perl-Error.noarch 1:0.17020-2.el7        perl-Git.noarch 0:1.8.3.1-22.el7_8   \n  perl-TermReadKey.x86_64 0:2.30-20.el7   \n\nComplete!\n"]}
+META: ran handlers
+META: ran handlers
+
+PLAY RECAP *****************************************************************************************************************************************************************
+18.222.249.25              : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+CONTROL NODE
+
+
+[centos@ip-10-0-0-136 ~]$ git -version
+Unknown option: -version
+usage: git [--version] [--help] [-c name=value]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p|--paginate|--no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           <command> [<args>]
+[centos@ip-10-0-0-136 ~]$ git --version
+git version 1.8.3.1
